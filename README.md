@@ -28,15 +28,28 @@ structured engineering plan and real, exportable artifacts.
 
 ## 📸 Screenshots
 
-> _Add screenshots / a GIF here once you run it locally._
+<p align="center">
+  <img src="docs/screenshots/workflow.png" alt="Live multi-agent workflow with activity feed, graph and timeline" width="900"/>
+  <br/>
+  <em>The live dashboard — workflow graph, agent timeline and a real-time activity feed streaming each agent's actions over SSE.</em>
+</p>
 
-| Landing & idea input | Live run dashboard |
-| --- | --- |
-| `docs/screenshots/landing.png` | `docs/screenshots/dashboard.png` |
-
-| Workflow graph + agent timeline | Artifact workspace |
-| --- | --- |
-| `docs/screenshots/workflow.png` | `docs/screenshots/artifacts.png` |
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/landing.png" alt="Landing page with the idea input"/></td>
+    <td width="50%"><img src="docs/screenshots/summary.png" alt="Delivery summary with quality score and verdict"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Landing — describe a software idea</em></td>
+    <td align="center"><em>Delivery summary — verdict, score and outcome</em></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshots/artifacts.png" alt="Artifact workspace with file tree and viewer"/></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><em>Artifact workspace — browse every doc and code file the agents produced</em></td>
+  </tr>
+</table>
 
 ---
 
