@@ -99,3 +99,18 @@ class Artifact(Base):
     created_at: Mapped[datetime] = mapped_column(default=_now)
 
     run: Mapped[Run] = relationship(back_populates="artifacts")
+
+
+class Message(Base):
+    """A chat message between the founder and an agent (or the team)."""
+
+    __tablename__ = "messages"
+
+    # Integer PK gives a stable, monotonic ordering within a run's conversation.
+    seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[str] = mapped_column(String(32), unique=True, default=_uuid, index=True)
+    run_id: Mapped[str] = mapped_column(ForeignKey("runs.id", ondelete="CASCADE"), index=True)
+    role: Mapped[str] = mapped_column(String(20))  # "user" | "assistant"
+    agent: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    content: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(default=_now)

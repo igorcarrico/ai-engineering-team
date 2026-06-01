@@ -36,3 +36,11 @@ class AnthropicProvider(LLMProvider):
         ]
         result = await structured.ainvoke(messages)
         return result  # type: ignore[return-value]
+
+    async def generate_text(self, *, system: str, prompt: str, context: dict | None = None) -> str:
+        messages = [
+            ("system", system),
+            ("human", prompt),
+        ]
+        result = await self._client.ainvoke(messages)
+        return str(result.content) if result.content is not None else ""

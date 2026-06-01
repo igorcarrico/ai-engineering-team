@@ -13,7 +13,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
-from app.api.routes import artifacts, health, projects, runs
+from app.api.routes import artifacts, chat, health, projects, runs
 from app.config import settings
 from app.core.events import hub
 from app.db.session import init_db
@@ -58,6 +58,7 @@ def create_app() -> FastAPI:
     app.include_router(projects.router, prefix=api_prefix)
     app.include_router(runs.router, prefix=api_prefix)
     app.include_router(artifacts.router, prefix=api_prefix)
+    app.include_router(chat.router, prefix=api_prefix)
 
     @app.get("/", include_in_schema=False)
     async def root() -> dict:

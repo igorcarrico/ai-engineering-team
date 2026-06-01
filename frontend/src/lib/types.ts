@@ -135,6 +135,27 @@ export interface CreateProjectRequest {
   max_iterations?: number;
 }
 
+export interface ChatMessage {
+  id: string;
+  seq: number;
+  run_id: string;
+  role: "user" | "assistant";
+  agent: AgentKey | null;
+  agent_label: string | null;
+  content: string;
+  created_at: string;
+}
+
+export interface SendMessageRequest {
+  content: string;
+  agent?: AgentKey | null;
+}
+
+export interface ChatExchange {
+  user: ChatMessage;
+  assistant: ChatMessage;
+}
+
 export interface RuntimeConfig {
   version: string;
   default_provider: string;

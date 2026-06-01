@@ -1,11 +1,12 @@
 "use client";
 
-import { Activity, FolderTree, Sparkles } from "lucide-react";
+import { Activity, FolderTree, MessageSquare, Sparkles } from "lucide-react";
 import * as React from "react";
 
 import { ActivityFeed } from "@/components/app/activity-feed";
 import { AgentTimeline } from "@/components/app/agent-timeline";
 import { ArtifactExplorer } from "@/components/app/artifact-explorer";
+import { ChatPanel } from "@/components/app/chat-panel";
 import { DeliverySummary } from "@/components/app/delivery-summary";
 import { RunHeader } from "@/components/app/run-header";
 import { WorkflowGraph } from "@/components/app/workflow-graph";
@@ -126,6 +127,11 @@ export function RunDashboard({ runId }: { runId: string }) {
                   <Sparkles className="h-3.5 w-3.5" /> Summary
                 </span>
               </TabsTrigger>
+              <TabsTrigger value="chat">
+                <span className="flex items-center gap-1.5">
+                  <MessageSquare className="h-3.5 w-3.5" /> Ask the team
+                </span>
+              </TabsTrigger>
             </TabsList>
 
             <div className="mt-4">
@@ -143,6 +149,10 @@ export function RunDashboard({ runId }: { runId: string }) {
 
               <TabsContent value="summary">
                 <DeliverySummary detail={detail} finished={finished} />
+              </TabsContent>
+
+              <TabsContent value="chat">
+                <ChatPanel runId={runId} finished={finished} />
               </TabsContent>
             </div>
           </Tabs>

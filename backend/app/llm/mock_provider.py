@@ -42,6 +42,20 @@ class MockProvider(LLMProvider):
             result = schema.model_validate(result.model_dump())
         return result  # type: ignore[return-value]
 
+    async def generate_text(self, *, system: str, prompt: str, context: dict | None = None) -> str:
+        if self._latency:
+            await asyncio.sleep(self._latency * 0.5)
+        # Deterministic, idea-grounded mock reply so the chat demo works key-free.
+        ctx = context or {}
+        agent_label = ctx.get("agent_label", "Lead Consultant")
+        return (
+            f"_(mock reply from {agent_label})_\n\n"
+            "I would normally respond here with a tailored answer based on the "
+            "team's prior outputs and your question. Plug in an Anthropic or "
+            "OpenAI key to see a real response.\n\n"
+            f"> You asked: {prompt[-200:]}"
+        )
+
 
 _SCHEMA_TO_KEY = {
     "ProductManagerOutput": "product_manager",

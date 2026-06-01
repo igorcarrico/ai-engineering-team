@@ -2,12 +2,15 @@
 
 import type {
   ArtifactRead,
+  ChatExchange,
+  ChatMessage,
   CreateProjectRequest,
   ProjectRead,
   ProjectSummary,
   RunDetail,
   RunEvent,
   RuntimeConfig,
+  SendMessageRequest,
   WorkspaceTree,
 } from "./types";
 
@@ -67,6 +70,14 @@ export const api = {
   briefUrl: (runId: string) => `${BASE}/runs/${runId}/brief.html`,
 
   streamUrl: (runId: string) => `${BASE}/runs/${runId}/stream`,
+
+  listChat: (runId: string) => request<ChatMessage[]>(`/runs/${runId}/chat`),
+
+  sendChat: (runId: string, body: SendMessageRequest) =>
+    request<ChatExchange>(`/runs/${runId}/chat`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
 };
 
 export { ApiError };

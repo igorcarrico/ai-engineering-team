@@ -44,5 +44,19 @@ class LLMProvider(abc.ABC):
         """
         raise NotImplementedError
 
+    @abc.abstractmethod
+    async def generate_text(
+        self,
+        *,
+        system: str,
+        prompt: str,
+        context: dict | None = None,
+    ) -> str:
+        """Produce a plain text response.
+
+        Used for free-form chat where structured output is unnecessary.
+        """
+        raise NotImplementedError
+
     def describe(self) -> dict[str, str]:
         return {"provider": self.name, "model": self.model}
