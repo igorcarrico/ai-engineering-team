@@ -60,7 +60,7 @@ async def test_create_project_runs_to_completion(client):
 
     md = await client.get(f"/api/runs/{run_id}/export.md")
     assert md.status_code == 200
-    assert "Delivery Summary" in md.text
+    assert "Feasibility Study" in md.text
 
 
 async def test_list_projects(client):

@@ -1,4 +1,4 @@
-"""QA Engineer agent — defines test strategy, scenarios and gaps."""
+"""Quality Risk Assessor — identifies how this product would fail in market."""
 
 from __future__ import annotations
 
@@ -10,10 +10,10 @@ from app.schemas.artifact import ArtifactBase
 from app.schemas.enums import AgentRole, ArtifactKind
 
 _UPSTREAM = [
-    ("product_manager", "Product Manager"),
-    ("architect", "Software Architect"),
-    ("backend_engineer", "Backend Engineer"),
-    ("frontend_engineer", "Frontend Engineer"),
+    ("product_manager", "Product Strategist"),
+    ("architect", "Solutions Architect"),
+    ("backend_engineer", "Backend Estimator"),
+    ("frontend_engineer", "Frontend Estimator"),
 ]
 
 
@@ -22,10 +22,20 @@ class QAEngineerAgent(BaseAgent):
     output_schema = QAOutput
 
     system_prompt = (
-        "You are a meticulous QA Engineer. Given the product, architecture and "
-        "engineering plans, you define a pragmatic test strategy, concrete test "
-        "scenarios, edge cases, a QA checklist, and you flag missing requirements "
-        "and risk areas. Always return structured data only."
+        "You are a Quality Risk Assessor on a feasibility-study team. Your job is "
+        "NOT to write a comprehensive test plan — it is to tell the founder how "
+        "this product would fail in the market.\n\n"
+        "Specifically:\n"
+        " 1. Identify the top 3 failure modes — the realistic ways this dies "
+        "(unclear UX, scaled performance, data quality, integration breaks, "
+        "competitor parity, etc.). Not 'bugs in code' — product-level failures.\n"
+        " 2. Define the quality floor — the absolute minimum bar before launch. "
+        "Skipping these will burn users on day one.\n"
+        " 3. Concrete test scenarios for the critical user journey only — depth "
+        "over breadth.\n"
+        " 4. Surface missing requirements the founder hasn't thought about yet "
+        "(idempotency, data retention, rate limits, etc.).\n\n"
+        "Always return structured data only."
     )
 
     def build_prompt(self, ctx: dict) -> str:
@@ -36,21 +46,23 @@ class QAEngineerAgent(BaseAgent):
                 sections.append(f"### {label}\n```json\n{json.dumps(out, indent=2)}\n```")
         outputs_block = "\n\n".join(sections) if sections else "_No upstream outputs available._"
         return (
-            f"Product idea:\n{ctx['idea']}\n\n"
-            "Using the upstream team outputs below, define a test strategy, "
-            "concrete test scenarios, edge cases, a QA checklist, and call out "
-            "missing requirements and risk areas. Tie every item back to "
-            "specific endpoints, components, user stories or risks from those "
-            "outputs — do not be generic.\n\n"
+            f"## Founder's idea\n{ctx['idea']}\n\n"
+            "Using the upstream outputs below, assess the quality risk for a "
+            "non-technical founder. Lead with:\n"
+            " - the top 3 ways this product fails in market (failure_modes)\n"
+            " - the quality_floor (non-skippable items)\n"
+            "Then provide focused test scenarios, edge cases, missing requirements "
+            "and a QA checklist tied to specific endpoints/components from those "
+            "outputs. Be specific — do not be generic.\n\n"
             f"## Upstream outputs\n\n{outputs_block}"
         )
 
     def progress_steps(self, ctx: dict) -> list[str]:
         return [
-            "Reviewing the engineering plans...",
-            "Enumerating edge cases...",
-            "Designing test scenarios...",
-            "Compiling the QA checklist...",
+            "Modeling how this product fails in market...",
+            "Setting the minimum quality floor...",
+            "Designing critical-path test scenarios...",
+            "Surfacing missing requirements...",
         ]
 
     def build_artifacts(self, output: QAOutput, ctx: dict) -> list[ArtifactBase]:  # type: ignore[override]
@@ -59,22 +71,32 @@ class QAEngineerAgent(BaseAgent):
             for s in output.test_scenarios
         )
         checklist = "\n".join(f"- [ ] **[{c.category}]** {c.item}" for c in output.qa_checklist)
+
+        header = ""
+        if output.failure_modes:
+            header += f"## Top Failure Modes\n{self._bullets(output.failure_modes)}\n\n"
+        if output.quality_floor:
+            header += f"## Quality Floor — non-skippable\n{self._bullets(output.quality_floor)}\n\n"
+
         md = (
-            f"# QA Plan\n\n"
+            f"# Quality Risk Assessment\n\n"
+            f"{header}"
             f"## Strategy\n{output.test_strategy}\n\n"
-            f"## Test Scenarios\n{scenarios}\n\n"
+            f"## Test Scenarios\n{scenarios or '_None._'}\n\n"
             f"## Edge Cases\n{self._bullets(output.edge_cases)}\n\n"
             f"## Missing Requirements\n{self._bullets(output.missing_requirements)}\n\n"
             f"## Risk Areas\n{self._bullets(output.risk_areas)}\n\n"
-            f"## QA Checklist\n{checklist}\n"
+            f"## QA Checklist\n{checklist or '_None._'}\n"
         )
         return [
             ArtifactBase(
-                title="QA Plan",
+                title="Quality Risk Assessment",
                 path="docs/05-qa-plan.md",
                 kind=ArtifactKind.REPORT,
                 produced_by=self.role,
                 content=md,
-                summary=f"{len(output.test_scenarios)} scenarios, {len(output.qa_checklist)} checks",
+                summary=(
+                    output.failure_modes[0] if output.failure_modes else f"{len(output.test_scenarios)} scenarios"
+                )[:160],
             )
         ]

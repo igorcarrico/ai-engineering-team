@@ -49,12 +49,12 @@ export function CreatePanel() {
       <CardContent className="p-6">
         <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <Sparkles className="h-4 w-4 text-primary" />
-          Describe the software you want to build
+          Describe the idea you're evaluating
         </div>
         <Textarea
           value={idea}
           onChange={(e) => setIdea(e.target.value)}
-          placeholder="e.g. Build a SaaS platform for AI-powered financial analytics…"
+          placeholder="e.g. An internal analytics dashboard for fleet fuel-consumption optimization…"
           className="min-h-[120px] text-base"
           onKeyDown={(e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === "Enter") submit();
@@ -105,7 +105,7 @@ export function CreatePanel() {
               </>
             ) : (
               <>
-                Launch engineering team
+                Get the verdict
                 <ArrowRight className="h-4 w-4" />
               </>
             )}

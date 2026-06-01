@@ -103,12 +103,40 @@ class GeneratedFile(BaseModel):
     content: str
 
 
+class BuildVsBuy(BaseModel):
+    """For each capability, recommend building custom vs adopting an existing solution."""
+
+    capability: str = Field(description="The capability/feature being decided on")
+    recommendation: str = Field(description="build | buy | hybrid")
+    why: str
+    suggested_vendor: str = Field(default="", description="If buy/hybrid, a concrete vendor or category")
+
+
+class ComplianceRequirement(BaseModel):
+    """A regulatory/legal requirement the founder must plan for."""
+
+    title: str
+    applies_when: str = Field(description="The trigger condition, e.g. 'EU users', 'card payments'")
+    lead_time_weeks: str = Field(default="", description="Rough effort, e.g. '2-4 weeks', 'requires lawyer'")
+    notes: str = Field(default="")
+
+
 # --------------------------------------------------------------------------- #
 # Per-agent outputs
 # --------------------------------------------------------------------------- #
 
 
 class ProductManagerOutput(BaseModel):
+    # Feasibility framing fields (lead the output for non-technical founders)
+    value_proposition: str = Field(
+        default="",
+        description="One-sentence elevator pitch a founder would say to an investor",
+    )
+    primary_metric_target: str = Field(
+        default="",
+        description="The single most important metric + a concrete target (e.g. '10% fuel cost reduction in 90 days')",
+    )
+    # Existing fields
     product_vision: str
     target_users: list[str] = Field(default_factory=list)
     user_stories: list[UserStory] = Field(default_factory=list)
@@ -121,6 +149,20 @@ class ProductManagerOutput(BaseModel):
 
 
 class ArchitectOutput(BaseModel):
+    # Feasibility framing
+    complexity_rating: str = Field(
+        default="moderate",
+        description="One of: simple | moderate | complex | very_complex",
+    )
+    complexity_drivers: list[str] = Field(
+        default_factory=list,
+        description="The 2-4 things that make this hard to build (integrations, scale, novelty, regulation, etc.)",
+    )
+    build_vs_buy: list[BuildVsBuy] = Field(
+        default_factory=list,
+        description="For each major capability, recommend custom-build vs adopting an existing SaaS",
+    )
+    # Existing fields
     architecture_overview: str
     architecture_style: str
     components: list[Component] = Field(default_factory=list)
@@ -132,6 +174,16 @@ class ArchitectOutput(BaseModel):
 
 
 class BackendEngineerOutput(BaseModel):
+    # Feasibility framing
+    effort_estimate: str = Field(
+        default="",
+        description="Ballpark like '4-6 weeks' or '2-3 months' for the backend MVP",
+    )
+    team_needed: str = Field(
+        default="",
+        description="Skill level and headcount, e.g. '1 senior backend engineer'",
+    )
+    # Existing fields
     service_modules: list[ServiceModule] = Field(default_factory=list)
     endpoints: list[ApiEndpoint] = Field(default_factory=list)
     files: list[GeneratedFile] = Field(default_factory=list)
@@ -139,14 +191,34 @@ class BackendEngineerOutput(BaseModel):
 
 
 class FrontendEngineerOutput(BaseModel):
+    # Feasibility framing
+    effort_estimate: str = Field(
+        default="",
+        description="Ballpark like '4-6 weeks' for the frontend MVP",
+    )
+    team_needed: str = Field(
+        default="",
+        description="Skill level and headcount, e.g. '1 mid-level frontend + 0.5 designer'",
+    )
+    # Existing fields
     pages: list[PageSpec] = Field(default_factory=list)
     components: list[ComponentSpec] = Field(default_factory=list)
-    state_management: str
+    state_management: str = Field(default="")
     files: list[GeneratedFile] = Field(default_factory=list)
     implementation_notes: list[str] = Field(default_factory=list)
 
 
 class QAOutput(BaseModel):
+    # Feasibility framing
+    quality_floor: list[str] = Field(
+        default_factory=list,
+        description="The minimum quality bar; skipping these will burn users on day one",
+    )
+    failure_modes: list[str] = Field(
+        default_factory=list,
+        description="Top 3 reasons this product would fail to launch or get adopted",
+    )
+    # Existing fields
     test_strategy: str
     test_scenarios: list[TestScenario] = Field(default_factory=list)
     edge_cases: list[str] = Field(default_factory=list)
@@ -157,6 +229,20 @@ class QAOutput(BaseModel):
 
 class SecurityOutput(BaseModel):
     overall_risk: Severity
+    # Feasibility framing
+    compliance_requirements: list[ComplianceRequirement] = Field(
+        default_factory=list,
+        description="Concrete legal/regulatory items the founder must plan for (GDPR, PCI, HIPAA, LGPD, etc.)",
+    )
+    requires_specialist: bool = Field(
+        default=False,
+        description="True if a lawyer, DPO, or security consultant is needed before launch",
+    )
+    legal_blockers: list[str] = Field(
+        default_factory=list,
+        description="Anything that could block launch in target geography",
+    )
+    # Existing fields
     findings: list[SecurityFinding] = Field(default_factory=list)
     prompt_injection_risks: list[str] = Field(default_factory=list)
     auth_recommendations: list[str] = Field(default_factory=list)
@@ -164,8 +250,15 @@ class SecurityOutput(BaseModel):
 
 
 class CodeReviewOutput(BaseModel):
+    """The founder-facing verdict: GO / GO_WITH_CONDITIONS / NO_GO.
+
+    Acts as both the engineering review (verdict + score, for the refine loop)
+    AND the executive decision card the non-technical founder reads first.
+    """
+
+    # --- Engineering review (drives the iteration loop) ---
     verdict: ReviewVerdict
-    score: int = Field(ge=0, le=100, description="Overall engineering quality score")
+    score: int = Field(ge=0, le=100, description="Plan quality score 0-100")
     overall_assessment: str
     strengths: list[str] = Field(default_factory=list)
     issues: list[ReviewIssue] = Field(default_factory=list)
@@ -173,6 +266,47 @@ class CodeReviewOutput(BaseModel):
     revision_focus: list[str] = Field(
         default_factory=list,
         description="If verdict is REVISE, what the next iteration should focus on",
+    )
+
+    # --- Founder-facing feasibility verdict ---
+    go_no_go: str = Field(
+        default="",
+        description="GO | GO_WITH_CONDITIONS | NO_GO — the clear recommendation to the founder",
+    )
+    verdict_rationale: str = Field(
+        default="",
+        description="One paragraph explaining the go/no-go in plain language for a non-technical founder",
+    )
+    mvp_timeline: str = Field(
+        default="",
+        description="Range to ship the MVP (e.g. '6-10 weeks')",
+    )
+    mvp_budget_usd_range: str = Field(
+        default="",
+        description="Range to ship the MVP (e.g. '$30k-$50k', or '$0-$5k tooling if solo')",
+    )
+    v1_timeline: str = Field(
+        default="",
+        description="Range to reach a polished V1 (e.g. '4-6 months')",
+    )
+    v1_budget_usd_range: str = Field(
+        default="",
+        description="Range for V1 total cost (e.g. '$120k-$200k')",
+    )
+    recommended_team: str = Field(
+        default="",
+        description="The team composition the founder should hire/assemble",
+    )
+    top_questions_to_validate_first: list[str] = Field(
+        default_factory=list,
+        description=(
+            "The 3-5 questions the founder should answer BEFORE committing budget — "
+            "discovery interviews, prototypes, etc."
+        ),
+    )
+    kill_criteria: list[str] = Field(
+        default_factory=list,
+        description="Conditions under which the founder should abandon the idea",
     )
 
 

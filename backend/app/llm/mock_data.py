@@ -14,8 +14,10 @@ from app.schemas.agent_io import (
     ApiEndpoint,
     ArchitectOutput,
     BackendEngineerOutput,
+    BuildVsBuy,
     ChecklistItem,
     CodeReviewOutput,
+    ComplianceRequirement,
     Component,
     ComponentSpec,
     Entity,
@@ -85,6 +87,11 @@ def product_manager(ctx: dict) -> ProductManagerOutput:
     name = d["product_name"]
     domain = d["domain"]
     return ProductManagerOutput(
+        value_proposition=(
+            f"{name} gives {domain.lower()} operators a single, decision-ready view "
+            f"of their workflow — turning hours of manual analysis into a minute."
+        ),
+        primary_metric_target=("20% reduction in time-to-decision for the core workflow within 90 days of launch"),
         product_vision=(
             f"{name} is a {domain.lower()}-focused platform that turns the goal "
             f"“{d['idea']}” into a focused, shippable product. The MVP "
@@ -183,6 +190,38 @@ def architect(ctx: dict) -> ArchitectOutput:
     d = ctx["_derived"]
     name = d["product_name"]
     return ArchitectOutput(
+        complexity_rating="moderate",
+        complexity_drivers=[
+            "Multi-tenant data isolation (must be airtight from day one)",
+            "Async processing for long-running jobs with progress feedback",
+            "Third-party integrations that can rate-limit or break",
+        ],
+        build_vs_buy=[
+            BuildVsBuy(
+                capability="Authentication & user management",
+                recommendation="buy",
+                why="Auth has many edge cases (MFA, password reset, SSO) and zero competitive value to build custom.",
+                suggested_vendor="Auth0 / Clerk / Supabase Auth",
+            ),
+            BuildVsBuy(
+                capability="Payments / billing",
+                recommendation="buy",
+                why="Saves months and removes PCI scope from your stack.",
+                suggested_vendor="Stripe (Billing + Tax)",
+            ),
+            BuildVsBuy(
+                capability="Core domain workflow",
+                recommendation="build",
+                why="This IS the product — your differentiation lives here.",
+                suggested_vendor="",
+            ),
+            BuildVsBuy(
+                capability="Email / transactional notifications",
+                recommendation="buy",
+                why="Deliverability is a specialty; outsource it.",
+                suggested_vendor="Resend / Postmark / SendGrid",
+            ),
+        ],
         architecture_overview=(
             f"{name} adopts a modular monolith for the MVP: a single deployable "
             "backend split into clear bounded contexts (auth, core workflow, "
@@ -272,6 +311,8 @@ def backend_engineer(ctx: dict) -> BackendEngineerOutput:
     d = ctx["_derived"]
     slug = d["slug"]
     return BackendEngineerOutput(
+        effort_estimate="6-9 weeks (includes integration, auth, deployment, testing)",
+        team_needed="1 senior backend engineer + occasional senior review",
         service_modules=[
             ServiceModule(
                 name="auth",
@@ -353,6 +394,8 @@ def backend_engineer(ctx: dict) -> BackendEngineerOutput:
 
 def frontend_engineer(ctx: dict) -> FrontendEngineerOutput:
     return FrontendEngineerOutput(
+        effort_estimate="5-7 weeks (responsive web; a11y + browser testing included)",
+        team_needed="1 mid-level frontend engineer + 0.3 designer (or design contractor)",
         pages=[
             PageSpec(route="/", name="Landing", description="Marketing + sign up CTA"),
             PageSpec(route="/login", name="Login", description="Authentication"),
@@ -407,6 +450,17 @@ def frontend_engineer(ctx: dict) -> FrontendEngineerOutput:
 
 def qa_engineer(ctx: dict) -> QAOutput:
     return QAOutput(
+        failure_modes=[
+            "Users abandon at first-run because time-to-first-value is too long",
+            "Edge cases in the core workflow produce wrong results — trust is broken once",
+            "Data quality from upstream sources is inconsistent and the UI doesn't signal it",
+        ],
+        quality_floor=[
+            "First-run flow works end-to-end with sample data",
+            "Critical paths covered by automated tests before launch",
+            "Visible data-quality indicators when source data is stale or missing",
+            "Error states never leave the user stuck — every dead-end has a next action",
+        ],
         test_strategy=(
             "Testing pyramid: many fast unit tests around services and pure logic, "
             "a focused set of integration tests across the API + database, and a "
@@ -473,6 +527,22 @@ def qa_engineer(ctx: dict) -> QAOutput:
 def security_reviewer(ctx: dict) -> SecurityOutput:
     return SecurityOutput(
         overall_risk=Severity.MEDIUM,
+        compliance_requirements=[
+            ComplianceRequirement(
+                title="GDPR / LGPD data processing",
+                applies_when="Storing personal data of EU or Brazilian users",
+                lead_time_weeks="2-4 weeks (DPA template + privacy policy)",
+                notes="Engage a privacy lawyer for the DPA template; reusable across customers.",
+            ),
+            ComplianceRequirement(
+                title="PCI DSS",
+                applies_when="Handling card data directly (not needed if using Stripe / similar)",
+                lead_time_weeks="Avoided by buying — keep PCI out of scope",
+                notes="Use Stripe Checkout / Elements to keep card data off your servers.",
+            ),
+        ],
+        requires_specialist=False,
+        legal_blockers=[],
         findings=[
             SecurityFinding(
                 title="Tenant isolation must be enforced at the query layer",
@@ -604,6 +674,35 @@ def code_reviewer(ctx: dict) -> CodeReviewOutput:
             "No contradictions detected across agent outputs",
         ],
         revision_focus=[],
+        # --- Founder-facing decision card ---
+        go_no_go="GO_WITH_CONDITIONS",
+        verdict_rationale=(
+            "The plan is technically sound and the MVP scope is realistic. The bet "
+            "is worth taking IF you can validate market pull and lock in a launch "
+            "customer before committing the full V1 budget. Recommend GO_WITH_CONDITIONS: "
+            "spend the MVP budget, but treat the validation questions below as "
+            "gates before scaling investment."
+        ),
+        mvp_timeline="11-14 weeks",
+        mvp_budget_usd_range="$45k-$70k (engineering + design contractor)",
+        v1_timeline="6-9 months from project start",
+        v1_budget_usd_range="$160k-$240k all-in",
+        recommended_team=(
+            "1 senior backend engineer + 1 mid-level frontend engineer + "
+            "0.3 designer (contractor). Add 0.5 PM at month 3 if not "
+            "founder-led."
+        ),
+        top_questions_to_validate_first=[
+            "Will at least 3 prospective customers commit to a paid pilot at the proposed price?",
+            "Is the data the product depends on actually accessible and clean enough?",
+            "How long does the first user take to reach the 'aha' moment in a prototype?",
+            "Does the workflow save enough time to displace the incumbent (spreadsheet / existing tool)?",
+        ],
+        kill_criteria=[
+            "Fewer than 2 of 5 discovery interviews show urgent pain",
+            "Required upstream data is not reliably accessible after 3 pilot attempts",
+            "Cost of acquisition exceeds 6 months of recurring revenue per customer",
+        ],
     )
 
 

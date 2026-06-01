@@ -20,13 +20,13 @@ class AgentRole(StrEnum):
     @property
     def label(self) -> str:
         return {
-            "product_manager": "Product Manager",
-            "architect": "Software Architect",
-            "backend_engineer": "Backend Engineer",
-            "frontend_engineer": "Frontend Engineer",
-            "qa_engineer": "QA Engineer",
-            "security_reviewer": "Security Reviewer",
-            "code_reviewer": "Code Reviewer",
+            "product_manager": "Product Strategist",
+            "architect": "Solutions Architect",
+            "backend_engineer": "Backend Estimator",
+            "frontend_engineer": "Frontend Estimator",
+            "qa_engineer": "Quality Risk Assessor",
+            "security_reviewer": "Compliance Advisor",
+            "code_reviewer": "Lead Consultant",
             "supervisor": "Supervisor",
         }[self.value]
 
