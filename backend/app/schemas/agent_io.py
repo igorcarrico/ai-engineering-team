@@ -110,66 +110,66 @@ class GeneratedFile(BaseModel):
 
 class ProductManagerOutput(BaseModel):
     product_vision: str
-    target_users: list[str]
-    user_stories: list[UserStory]
-    mvp_scope: list[str]
-    out_of_scope: list[str]
-    assumptions: list[str]
-    risks: list[Risk]
-    success_metrics: list[str]
-    technical_requirements: list[str]
+    target_users: list[str] = Field(default_factory=list)
+    user_stories: list[UserStory] = Field(default_factory=list)
+    mvp_scope: list[str] = Field(default_factory=list)
+    out_of_scope: list[str] = Field(default_factory=list)
+    assumptions: list[str] = Field(default_factory=list)
+    risks: list[Risk] = Field(default_factory=list)
+    success_metrics: list[str] = Field(default_factory=list)
+    technical_requirements: list[str] = Field(default_factory=list)
 
 
 class ArchitectOutput(BaseModel):
     architecture_overview: str
     architecture_style: str
-    components: list[Component]
-    data_model: list[Entity]
-    api_endpoints: list[ApiEndpoint]
-    infrastructure: list[str]
-    scalability_notes: list[str]
+    components: list[Component] = Field(default_factory=list)
+    data_model: list[Entity] = Field(default_factory=list)
+    api_endpoints: list[ApiEndpoint] = Field(default_factory=list)
+    infrastructure: list[str] = Field(default_factory=list)
+    scalability_notes: list[str] = Field(default_factory=list)
     tech_stack: dict[str, str] = Field(default_factory=dict)
 
 
 class BackendEngineerOutput(BaseModel):
-    service_modules: list[ServiceModule]
-    endpoints: list[ApiEndpoint]
-    files: list[GeneratedFile]
-    implementation_notes: list[str]
+    service_modules: list[ServiceModule] = Field(default_factory=list)
+    endpoints: list[ApiEndpoint] = Field(default_factory=list)
+    files: list[GeneratedFile] = Field(default_factory=list)
+    implementation_notes: list[str] = Field(default_factory=list)
 
 
 class FrontendEngineerOutput(BaseModel):
-    pages: list[PageSpec]
-    components: list[ComponentSpec]
+    pages: list[PageSpec] = Field(default_factory=list)
+    components: list[ComponentSpec] = Field(default_factory=list)
     state_management: str
-    files: list[GeneratedFile]
-    implementation_notes: list[str]
+    files: list[GeneratedFile] = Field(default_factory=list)
+    implementation_notes: list[str] = Field(default_factory=list)
 
 
 class QAOutput(BaseModel):
     test_strategy: str
-    test_scenarios: list[TestScenario]
-    edge_cases: list[str]
-    missing_requirements: list[str]
-    qa_checklist: list[ChecklistItem]
-    risk_areas: list[str]
+    test_scenarios: list[TestScenario] = Field(default_factory=list)
+    edge_cases: list[str] = Field(default_factory=list)
+    missing_requirements: list[str] = Field(default_factory=list)
+    qa_checklist: list[ChecklistItem] = Field(default_factory=list)
+    risk_areas: list[str] = Field(default_factory=list)
 
 
 class SecurityOutput(BaseModel):
     overall_risk: Severity
-    findings: list[SecurityFinding]
-    prompt_injection_risks: list[str]
-    auth_recommendations: list[str]
-    compliance_notes: list[str]
+    findings: list[SecurityFinding] = Field(default_factory=list)
+    prompt_injection_risks: list[str] = Field(default_factory=list)
+    auth_recommendations: list[str] = Field(default_factory=list)
+    compliance_notes: list[str] = Field(default_factory=list)
 
 
 class CodeReviewOutput(BaseModel):
     verdict: ReviewVerdict
     score: int = Field(ge=0, le=100, description="Overall engineering quality score")
     overall_assessment: str
-    strengths: list[str]
-    issues: list[ReviewIssue]
-    consistency_checks: list[str]
+    strengths: list[str] = Field(default_factory=list)
+    issues: list[ReviewIssue] = Field(default_factory=list)
+    consistency_checks: list[str] = Field(default_factory=list)
     revision_focus: list[str] = Field(
         default_factory=list,
         description="If verdict is REVISE, what the next iteration should focus on",

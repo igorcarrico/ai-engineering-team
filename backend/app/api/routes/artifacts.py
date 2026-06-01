@@ -1,13 +1,14 @@
-"""Artifact endpoints: list, tree, detail and exports (md / json / zip)."""
+"""Artifact endpoints: list, tree, detail and exports (md / json / zip / brief)."""
 
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import JSONResponse, PlainTextResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Response
 
-from app.api.deps import get_artifact_service
+from app.api.deps import get_artifact_service, get_brief_service
 from app.schemas.artifact import ArtifactRead, WorkspaceTree
 from app.services.artifact_service import ArtifactService
+from app.services.brief_service import BriefService
 
 router = APIRouter(tags=["artifacts"])
 
@@ -74,3 +75,15 @@ async def export_zip(
         media_type="application/zip",
         headers={"Content-Disposition": f'attachment; filename="workspace-{run_id}.zip"'},
     )
+
+
+@router.get("/runs/{run_id}/brief.html", response_class=HTMLResponse)
+async def render_brief(
+    run_id: str,
+    svc: BriefService = Depends(get_brief_service),
+) -> HTMLResponse:
+    """Single self-contained Engineering Brief — the polished, navigable deliverable."""
+    html_doc = await svc.render(run_id)
+    if html_doc is None:
+        raise HTTPException(status_code=404, detail="Run not found")
+    return HTMLResponse(content=html_doc)

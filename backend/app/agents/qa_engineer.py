@@ -2,10 +2,19 @@
 
 from __future__ import annotations
 
+import json
+
 from app.agents.base import BaseAgent
 from app.schemas.agent_io import QAOutput
 from app.schemas.artifact import ArtifactBase
 from app.schemas.enums import AgentRole, ArtifactKind
+
+_UPSTREAM = [
+    ("product_manager", "Product Manager"),
+    ("architect", "Software Architect"),
+    ("backend_engineer", "Backend Engineer"),
+    ("frontend_engineer", "Frontend Engineer"),
+]
 
 
 class QAEngineerAgent(BaseAgent):
@@ -20,11 +29,20 @@ class QAEngineerAgent(BaseAgent):
     )
 
     def build_prompt(self, ctx: dict) -> str:
+        sections = []
+        for key, label in _UPSTREAM:
+            out = ctx.get(key)
+            if out:
+                sections.append(f"### {label}\n```json\n{json.dumps(out, indent=2)}\n```")
+        outputs_block = "\n\n".join(sections) if sections else "_No upstream outputs available._"
         return (
             f"Product idea:\n{ctx['idea']}\n\n"
-            "Based on the product, architecture and engineering plans already "
-            "produced, define the test strategy, scenarios, edge cases, a QA "
-            "checklist, and call out missing requirements and risk areas."
+            "Using the upstream team outputs below, define a test strategy, "
+            "concrete test scenarios, edge cases, a QA checklist, and call out "
+            "missing requirements and risk areas. Tie every item back to "
+            "specific endpoints, components, user stories or risks from those "
+            "outputs — do not be generic.\n\n"
+            f"## Upstream outputs\n\n{outputs_block}"
         )
 
     def progress_steps(self, ctx: dict) -> list[str]:

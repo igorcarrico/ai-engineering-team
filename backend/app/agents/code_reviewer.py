@@ -2,10 +2,21 @@
 
 from __future__ import annotations
 
+import json
+
 from app.agents.base import BaseAgent
 from app.schemas.agent_io import CodeReviewOutput
 from app.schemas.artifact import ArtifactBase
 from app.schemas.enums import AgentRole, ArtifactKind
+
+_PRIOR_AGENTS = [
+    ("product_manager", "Product Manager"),
+    ("architect", "Software Architect"),
+    ("backend_engineer", "Backend Engineer"),
+    ("frontend_engineer", "Frontend Engineer"),
+    ("qa_engineer", "QA Engineer"),
+    ("security_reviewer", "Security Reviewer"),
+]
 
 
 class CodeReviewerAgent(BaseAgent):
@@ -21,13 +32,21 @@ class CodeReviewerAgent(BaseAgent):
     )
 
     def build_prompt(self, ctx: dict) -> str:
+        sections = []
+        for key, label in _PRIOR_AGENTS:
+            out = ctx.get(key)
+            if out:
+                sections.append(f"### {label}\n```json\n{json.dumps(out, indent=2)}\n```")
+        outputs_block = "\n\n".join(sections) if sections else "_No prior outputs available._"
         return (
             f"Iteration: {ctx.get('iteration', 0)}\n\n"
-            "Review the combined outputs of the Product Manager, Architect, "
-            "Backend Engineer, Frontend Engineer, QA Engineer and Security "
-            "Reviewer. Score engineering quality 0-100, list strengths and issues, "
-            "verify cross-agent consistency, and decide APPROVE or REVISE. If "
-            "REVISE, provide a precise revision_focus for the next iteration."
+            "Review the combined outputs of the team below. Score engineering "
+            "quality 0-100, list concrete strengths and issues (each tied to a "
+            "specific agent area), verify cross-agent consistency, and decide "
+            "APPROVE or REVISE. If REVISE, provide a precise revision_focus "
+            "list for the next iteration. Reference the actual content of the "
+            "outputs — do not be generic.\n\n"
+            f"## Team outputs\n\n{outputs_block}"
         )
 
     def progress_steps(self, ctx: dict) -> list[str]:

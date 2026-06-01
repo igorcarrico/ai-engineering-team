@@ -19,11 +19,13 @@ class AnthropicProvider(LLMProvider):
         from langchain_anthropic import ChatAnthropic
 
         self.model = model
+        # 8192 = Sonnet's max output; needed for complex Architect/Backend outputs
+        # whose nested JSON can otherwise truncate mid-structure.
         self._client = ChatAnthropic(
             model=model,
             api_key=api_key,
             temperature=temperature,
-            max_tokens=4096,
+            max_tokens=8192,
         )
 
     async def generate(self, *, system: str, prompt: str, schema: type[T], context: dict) -> T:

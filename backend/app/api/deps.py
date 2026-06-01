@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_session
 from app.services.artifact_service import ArtifactService
+from app.services.brief_service import BriefService
 from app.services.orchestration_service import OrchestrationService
 from app.services.project_service import ProjectService
 
@@ -27,3 +28,9 @@ def get_artifact_service(
     session: AsyncSession = Depends(get_session),
 ) -> ArtifactService:
     return ArtifactService(session)
+
+
+def get_brief_service(
+    session: AsyncSession = Depends(get_session),
+) -> BriefService:
+    return BriefService(session)

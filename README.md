@@ -49,6 +49,12 @@ structured engineering plan and real, exportable artifacts.
   <tr>
     <td colspan="2" align="center"><em>Artifact workspace — browse every doc and code file the agents produced</em></td>
   </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshots/brief.png" alt="Engineering Brief — single HTML deliverable"/></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><em>Engineering Brief — one polished, navigable document combining every artifact (print-to-PDF ready)</em></td>
+  </tr>
 </table>
 
 ---
@@ -65,7 +71,8 @@ structured engineering plan and real, exportable artifacts.
 - **Real artifact workspace** — product specs, architecture (with a Mermaid
   diagram), backend/frontend plans + starter code, QA & security reports, and an
   executive delivery summary. Browse a file tree; export to **Markdown / JSON /
-  `.zip`**.
+  `.zip`** — or **open a single polished "Engineering Brief" HTML** (sidebar
+  nav, embedded Mermaid diagrams, print-to-PDF ready).
 - **Observable & persistent** — runs, an event log, and artifacts are persisted;
   the agent timeline is *derived* from events, so it never drifts.
 - **Provider abstraction** — `mock` / `anthropic` / `openai` behind one
@@ -215,7 +222,8 @@ ANTHROPIC_API_KEY=sk-ant-...
 | `GET` | `/api/runs/{id}/events` | Persisted event log (replay) |
 | `GET` | `/api/runs/{id}/stream` | **SSE** live activity stream |
 | `GET` | `/api/runs/{id}/artifacts` · `/tree` | Artifacts + workspace tree |
-| `GET` | `/api/runs/{id}/export.{md,json,zip}` | Export the deliverables |
+| `GET` | `/api/runs/{id}/brief.html` | **Polished, navigable Engineering Brief** (single HTML, print-to-PDF ready) |
+| `GET` | `/api/runs/{id}/export.{md,json,zip}` | Raw exports of the deliverables |
 
 Interactive docs at `http://localhost:8000/docs`.
 

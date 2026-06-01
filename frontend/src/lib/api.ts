@@ -64,6 +64,8 @@ export const api = {
   exportUrl: (runId: string, fmt: "md" | "json" | "zip") =>
     `${BASE}/runs/${runId}/export.${fmt}`,
 
+  briefUrl: (runId: string) => `${BASE}/runs/${runId}/brief.html`,
+
   streamUrl: (runId: string) => `${BASE}/runs/${runId}/stream`,
 };
 

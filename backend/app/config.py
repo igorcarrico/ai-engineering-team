@@ -7,10 +7,10 @@ It is cached so the same instance is shared across the process.
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 ProviderName = Literal["mock", "anthropic", "openai"]
 
@@ -30,7 +30,11 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     api_host: str = "0.0.0.0"
     api_port: int = 8000
-    cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000", "http://127.0.0.1:3000"])
+    # NoDecode: keep pydantic-settings from JSON-parsing the raw env string;
+    # the validator below handles the comma-separated form ourselves.
+    cors_origins: Annotated[list[str], NoDecode] = Field(
+        default_factory=lambda: ["http://localhost:3000", "http://127.0.0.1:3000"]
+    )
 
     # --- Database ---
     database_url: str = "sqlite+aiosqlite:///./aiteam.db"

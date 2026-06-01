@@ -367,8 +367,7 @@ def frontend_engineer(ctx: dict) -> FrontendEngineerOutput:
             ComponentSpec(name="UsageMeter", description="Quota usage visualization", props=["used", "limit"]),
         ],
         state_management=(
-            "React Server Components for data fetching + lightweight client store "
-            "(Zustand) for ephemeral UI state"
+            "React Server Components for data fetching + lightweight client store (Zustand) for ephemeral UI state"
         ),
         files=[
             GeneratedFile(
@@ -481,8 +480,7 @@ def security_reviewer(ctx: dict) -> SecurityOutput:
                 severity=Severity.HIGH,
                 description="Without row-level scoping, a bug could leak cross-tenant data.",
                 recommendation=(
-                    "Scope every query by org_id via a repository base class; add tests "
-                    "that assert isolation."
+                    "Scope every query by org_id via a repository base class; add tests that assert isolation."
                 ),
             ),
             SecurityFinding(
