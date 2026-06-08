@@ -20,9 +20,11 @@ structured engineering plan and real, exportable artifacts.
 
 </div>
 
-> **Runs with zero API keys.** A deterministic mock provider drives the entire
-> platform end-to-end, so anyone can clone and run the full experience in minutes.
-> Drop in an Anthropic or OpenAI key to switch to real models — no code changes.
+> **Production-grade LLM integration.** Real **Anthropic (Claude Sonnet 4.6)**
+> and **OpenAI (GPT-4o)** via LangChain structured outputs, 8192-token output
+> budgets, bounded retry logic and graceful provider fallback. A deterministic
+> mock provider ships alongside for **zero-key reproducible demos and CI** — pick
+> the mode with one env var, no code changes.
 
 ---
 
@@ -32,6 +34,8 @@ structured engineering plan and real, exportable artifacts.
   <img src="docs/screenshots/workflow.png" alt="Live multi-agent workflow with activity feed, graph and timeline" width="900"/>
   <br/>
   <em>The live dashboard — workflow graph, agent timeline and a real-time activity feed streaming each agent's actions over SSE.</em>
+  <br/><br/>
+  <sub>📡 <strong>Every screenshot below is from a real <code>claude-sonnet-4-6</code> run</strong> — 16 artifacts, 11m 37s, quality score 74/100. The model badge is visible in the dashboard header.</sub>
 </p>
 
 <table>
@@ -72,6 +76,12 @@ structured engineering plan and real, exportable artifacts.
   **bounded conditional refine loop**.
 - **Live, cinematic activity feed** — every agent action streams to the UI over
   **Server-Sent Events**, with late-join replay (no gaps if you reload).
+- **Real LLM integration** — **Anthropic Claude Sonnet 4.6** and **OpenAI GPT-4o**
+  via LangChain `with_structured_output` (tool-calling-constrained Pydantic
+  models, no fragile text parsing), 8192-token output budgets to fit complex
+  nested schemas, tenacity-backed bounded retries on transient errors, and a
+  small `LLMProvider` interface that keeps the rest of the system
+  SDK-agnostic.
 - **Structured outputs everywhere** — each agent returns a typed Pydantic model
   (enforced via constrained decoding on real providers; deterministic on mock).
 - **Real artifact workspace** — product specs, architecture (with a Mermaid
@@ -79,10 +89,14 @@ structured engineering plan and real, exportable artifacts.
   executive delivery summary. Browse a file tree; export to **Markdown / JSON /
   `.zip`** — or **open a single polished "Engineering Brief" HTML** (sidebar
   nav, embedded Mermaid diagrams, print-to-PDF ready).
+- **Post-verdict chat** — talk to any agent (or the Lead Consultant) after the
+  run, grounded in the team's outputs and the original idea. Persisted per run.
 - **Observable & persistent** — runs, an event log, and artifacts are persisted;
   the agent timeline is *derived* from events, so it never drifts.
 - **Provider abstraction** — `mock` / `anthropic` / `openai` behind one
-  interface, with graceful fallback to mock when keys are missing.
+  interface, with graceful fallback to mock when keys are missing. The mock is
+  an engineering feature, not a limitation: it makes the platform testable in
+  CI, demoable without spend, and forensically reproducible.
 - **Production-minded** — typed settings, structured logging, async SQLAlchemy
   (SQLite or Postgres), Docker Compose, 27 backend tests, dark-mode UI.
 
@@ -229,6 +243,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 | `GET` | `/api/runs/{id}/stream` | **SSE** live activity stream |
 | `GET` | `/api/runs/{id}/artifacts` · `/tree` | Artifacts + workspace tree |
 | `GET` | `/api/runs/{id}/brief.html` | **Polished, navigable Engineering Brief** (single HTML, print-to-PDF ready) |
+| `GET` · `POST` | `/api/runs/{id}/chat` | **Post-verdict chat** — talk to any agent (grounded in the team's outputs) |
 | `GET` | `/api/runs/{id}/export.{md,json,zip}` | Raw exports of the deliverables |
 
 Interactive docs at `http://localhost:8000/docs`.
@@ -279,8 +294,11 @@ ai-engineering-team/
 
 ## 🧭 Engineering decisions
 
-- **Mock-first design.** A flagship portfolio project must run instantly. The
-  mock provider is deterministic, so demos are reproducible and tests are stable.
+- **Real LLM first, mock as a peer.** The system was built and tuned against
+  real Anthropic and OpenAI models (every screenshot in this README is a real
+  `claude-sonnet-4-6` run). The mock provider lives alongside as a deterministic
+  peer so the 27 backend tests are stable, CI runs free, and recruiters can clone
+  and demo without provisioning a key.
 - **Events as the source of truth.** The agent timeline is derived from the event
   log, eliminating a class of state-drift bugs.
 - **Structured outputs over prompt-parsing.** Typed contracts make the system
