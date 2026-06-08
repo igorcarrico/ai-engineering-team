@@ -36,18 +36,24 @@ structured engineering plan and real, exportable artifacts.
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/landing.png" alt="Landing page with the idea input"/></td>
-    <td width="50%"><img src="docs/screenshots/summary.png" alt="Delivery summary with quality score and verdict"/></td>
+    <td width="50%"><img src="docs/screenshots/landing.png" alt="Landing page — describe an idea to evaluate"/></td>
+    <td width="50%"><img src="docs/screenshots/summary.png" alt="Feasibility study summary with GO/NO-GO verdict, timeline and budget"/></td>
   </tr>
   <tr>
-    <td align="center"><em>Landing — describe a software idea</em></td>
-    <td align="center"><em>Delivery summary — verdict, score and outcome</em></td>
+    <td align="center"><em>Landing — "should you actually build this idea?"</em></td>
+    <td align="center"><em>Verdict — GO/NO-GO with timeline, budget and rationale</em></td>
   </tr>
   <tr>
-    <td colspan="2"><img src="docs/screenshots/artifacts.png" alt="Artifact workspace with file tree and viewer"/></td>
+    <td colspan="2"><img src="docs/screenshots/artifacts.png" alt="Workspace explorer with the Go/No-Go verdict file open"/></td>
   </tr>
   <tr>
-    <td colspan="2" align="center"><em>Artifact workspace — browse every doc and code file the agents produced</em></td>
+    <td colspan="2" align="center"><em>Workspace — every doc and code file the team produced, with the Go/No-Go verdict on the right</em></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshots/chat.png" alt="Ask the team — post-verdict chat with a chosen agent"/></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><em>Ask the team — chat with any agent after the verdict; replies are grounded in the team's outputs</em></td>
   </tr>
   <tr>
     <td colspan="2"><img src="docs/screenshots/brief.png" alt="Engineering Brief — single HTML deliverable"/></td>
